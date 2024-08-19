@@ -1,12 +1,14 @@
-{ config, pkgs, pkgs-unstable, lib, inputs, ... }:
+{ ... }:
 
 {
   imports = [
     ./user
   ];
   
-  home.username = "gpskwlkr";
-  home.homeDirectory = "/home/gpskwlkr";
-  home.stateVersion = "23.11";
+  home = {
+    username = "snregales";
+    homeDirectory = "/home/snregales";
+    stateVersion = "24.05";
+  };
 }
 

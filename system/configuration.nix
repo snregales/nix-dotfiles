@@ -1,12 +1,12 @@
-{ config, lib, pkgs, ... }:
+{ hardware, ... }:
 
 {
   imports = [
     ./hardware-configuration.nix
-    ./modules 
+    hardware.nixosModules.dell-xps-15-9500-nvidia
+    ./modules
   ];
 
-
-  system.stateVersion = "23.11"; 
+  system.stateVersion = "24.05";
 }
 

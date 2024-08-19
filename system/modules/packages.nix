@@ -1,5 +1,5 @@
 
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -27,6 +27,7 @@
     xdg-desktop-portal-wlr
     zip
     zoxide
+    egl-wayland
   ];
 }
 

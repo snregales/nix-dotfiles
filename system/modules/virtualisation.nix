@@ -6,7 +6,6 @@
 
     libvirtd = {
       enable = true;
-
       qemu = {
         swtpm.enable = true;
         ovmf.enable = true;
@@ -16,7 +15,6 @@
 
     podman = {
       enable = true;
-
       dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
     };
@@ -31,6 +29,6 @@
     virt-manager
     virt-viewer
     win-spice
-    win-virtio  
+    win-virtio
   ];
 }

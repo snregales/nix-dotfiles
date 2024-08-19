@@ -1,52 +1,111 @@
 {
-    description = "gpskwlkr NixOS";
+  description = "snregales fork of gpskwlkr NixOS";
 
-    inputs = {
-	    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
-        nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
-        home-manager.url = "github:nix-community/home-manager/release-23.11";
-        home-manager.inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    ###
+    # Hardware configuration channels
+    ###
 
-        firefox-addons = {
-            url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
+    hardware.url = "github:NixOS/nixos-hardware/master";
+    systems.url = "github:nix-systems/default-linux";
 
-        lanzaboote = {
-            url = "github:nix-community/lanzaboote/v0.3.0";
+    ###
+    # Nixpkgs
+    ###
 
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+
+    home-manager = {
+      url = "github:nix-community/home-manager/release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, lanzaboote, ... }@inputs:
-	let 
-	    lib = nixpkgs.lib;
-	    system = "x86_64-linux";
-	    pkgs = nixpkgs.legacyPackages.${system};
-        pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
-	in
-    {
-		nixosConfigurations.nixos-personal = lib.nixosSystem {
-                inherit system;
-				modules = [
-                    ./system/configuration.nix 
-                    lanzaboote.nixosModules.lanzaboote 
-				];
-                specialArgs = {
-                    inherit pkgs-unstable;
-                };
+    firefox-addons = {
+        url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+        inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    lanzaboote = {
+        url = "github:nix-community/lanzaboote/v0.3.0";
+        inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    alejandra = {
+      url = "github:kamadorueda/alejandra/3.0.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    ###
+    # Unstable
+    ###
+
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    hyprland = {
+      url = "git+https://github.com/hyprwm/hyprland?submodules=1";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hyprwm-contrib = {
+      url = "github:hyprwm/contrib";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hyprpaper = {
+      url = "github:hyprwm/hyprpaper";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hyprkeys = {
+      url = "github:hyprland-community/hyprkeys";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+  };
+
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, lanzaboote, hardware, ... } @inputs:
+	let
+    lib = nixpkgs.lib;
+    # eachSystem = nixpkgs.lib.genAttrs(import inputs.systems);
+    # pkgs = eachSystem (system: nixpkgs.legacyPackages.${system});
+    # pkgs-unstable = eachSystem (system: nixpkgs-unstable.legacyPackages.${system});
+    # formatter = eachSystem (system: inputs.alejandra.defaultPackage.${system});
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
+    formatter = inputs.alejandra.defaultPackage.${system};
+	in {
+		nixosConfigurations = {
+      devnl = lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./system/configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          { environment.systemPackages = [ formatter ]; }
+        ];
+        specialArgs = {
+          inherit pkgs-unstable;
+          inherit hardware;
         };
+      };
+    };
 
 		homeConfigurations = {
-			gpskwlkr = home-manager.lib.homeManagerConfiguration {
+			snregales = home-manager.lib.homeManagerConfiguration {
 				inherit pkgs;
-				modules = [ ./home ];
-                extraSpecialArgs = {
-                    inherit pkgs-unstable;
-                    inherit inputs;
-                };
+				modules = [
+          # inputs.hyprland.homeManagerModules.default
+          # {
+          #   wayland.windowManager.hyprland = {
+          #     enable = true;
+          #     systemd.enableXdgAutostart = true;
+          #   };
+          # }
+          ./home
+        ];
+        extraSpecialArgs = {
+          inherit pkgs-unstable;
+          inherit inputs;
+        };
 			};
 		};
-    };
+  };
 }

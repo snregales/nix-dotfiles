@@ -1,21 +1,54 @@
-{ config, pkgs, ... }:
+{ pkgs,  ... }: let
+  tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
+  hyprland-session = "${pkgs.hyprland}/share/wayland-sessions";
+in {
 
-{
+  # this is a life saver.
+  # literally no documentation about this anywhere.
+  # might be good to write about this...
+  # https://www.reddit.com/r/NixOS/comments/u0cdpi/tuigreet_with_xmonad_how/
+  # systemd.services.greetd.serviceConfig = {
+  #   Type = "idle";
+  #   StandardInput = "tty";
+  #   StandardOutput = "tty";
+  #   StandardError = "journal"; # Without this errors will spam on screen
+  #
+  #   # Without these bootlogs will spam on screen
+  #   TTYReset = true;
+  #   TTYVHangup = true;
+  #   TTYVTDisallocate = true;
+  # };
   services = {
   	dbus.enable = true;
-	picom.enable = true;
-	openssh.enable = true;
+	  picom.enable = true;
     spice-vdagentd.enable = true;
 
-	xserver = {
-		enable = true;
-		layout = "us, ru, ge";
-        xkbOptions = "grp:alt_shift_toggle, caps:swapescape";
+    # This setups a SSH server.
 
-		displayManager = {
-			sddm.enable = true;
-            sddm.theme = "${import ./sddm-theme.nix { inherit pkgs; }}";
-		};
-	};
+    # greetd = {
+    #   enable = true;
+    #   settings = {
+    #     default_session = {
+    #       command = "${tuigreet} --time --remember --remember-session --sessions ${hyprland-session}";
+    #       user = "greeter";
+    #     };
+    #   };
+    # };
+ 
+    # displayManager.sddm = {
+    #   enable = true;
+    #   wayland.enable = true;
+    #   theme = "${import ./sddm-theme.nix { inherit pkgs; }}";
+    # };
+    #
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us";
+        variant = "dvorak-classic";
+      };
+      displayManager.gdm.enable = true;
+      desktopManager.gnome.enable = true;
+    };
   };
 }

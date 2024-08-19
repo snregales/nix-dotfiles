@@ -1,11 +1,21 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
-    programs.hyprland = {
+  programs = {
+    hyprland = {
         enable = true;
+        xwayland.enable = true;
+    };
+    hyprlock.enable = true;
+  };
+  services.hypridle.enable = true;
+  environment = {
+    sessionVariables = {
+      NIXOS_OZONE_WL = "1";
     };
 
-    environment.systemPackages = with pkgs; [
+    systemPackages = with pkgs; [
+      xdg-desktop-portal-hyprland
       hyprpaper
       kitty
       libnotify
@@ -19,4 +29,5 @@
       wofi
       waybar
     ];
+  };
 }

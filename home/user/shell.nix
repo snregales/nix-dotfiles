@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 let 
   myAliases = {
     docker-compose = "podman-compose";
     cat = "bat";
-    ls = "eza --icons=always";
+    ls = "eza";
 
-    fullClean = '' 
+    fullClean = ''
         nix-collect-garbage --delete-old
 
         sudo nix-collect-garbage -d
@@ -19,27 +19,23 @@ let
 in
 {
   programs = {
-	zsh = {
-		enable = true;
-		enableAutosuggestions = true;
-		syntaxHighlighting.enable = true;
-		initExtra = '' 
-            source ~/.p10k.zsh && 
-            eval "$(zoxide init --cmd cd zsh)" && 
+    zsh = {
+      enable = true;
+      enableCompletion = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
 
-            export PATH="$PATH:/home/gpskwlkr/.dotnet/tools"
-        ''; 
-		shellAliases = myAliases;
-		oh-my-zsh = {
-			enable = true;
-			custom = "$HOME/.oh-my-custom";
-			theme = "powerlevel10k/powerlevel10k";
-			plugins = [
-				"git"
-				"history"
-				"wd"
-			];
-		};
-	};
+      defaultKeymap = "viins";  # TODO: vicmd
+
+      shellAliases = myAliases;
+      history = {
+        size = 10000;
+        path = "${config.xdg.dataHome}/zsh/history";
+      };
+      zplug = {
+        enable = true;
+        plugins = [];
+      };
+    };
   };
 }
